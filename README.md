@@ -1,7 +1,7 @@
 # ⭐ GitHub仓库排名 ⭐
 
-[![更新状态](https://github.com/你的用户名/github-ranking/workflows/更新GitHub仓库排名/badge.svg)](https://github.com/你的用户名/github-ranking/actions)
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-部署中-brightgreen)](https://你的用户名.github.io/github-ranking/)
+[![更新状态](https://github.com/aimkick/githubrank/workflows/更新GitHub仓库排名/badge.svg)](https://github.com/aimkick/githubrank/actions)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-部署中-brightgreen)](https://aimkick.github.io/githubrank/)
 [![Python](https://img.shields.io/badge/Python-3.9+-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
@@ -18,7 +18,7 @@
 
 ## 🚀 在线访问
 
-**网站地址：** [https://你的用户名.github.io/github-ranking/](https://你的用户名.github.io/github-ranking/)
+**网站地址：** [https://aimkick.github.io/githubrank/](https://aimkick.github.io/githubrank/)
 
 *最后更新时间: 每日北京时间 12:00*
 
@@ -65,8 +65,8 @@ GitHub仓库排名项目
 
 1. **克隆项目**
 ```bash
-git clone https://github.com/你的用户名/github-ranking.git
-cd github-ranking
+git clone https://github.com/aimkick/githubrank.git
+cd githubrank
 ```
 
 2. **安装依赖**
@@ -199,7 +199,7 @@ top_n = 100  # 默认100个
 如有问题或建议，请通过以下方式联系：
 
 - 📧 Email: your-email@example.com
-- 💬 GitHub Issues: [提交Issue](https://github.com/你的用户名/github-ranking/issues)
+- 💬 GitHub Issues: [提交Issue](https://github.com/aimkick/githubrank/issues)
 - 🐦 Twitter: [@你的Twitter](https://twitter.com/你的Twitter)
 
 ---

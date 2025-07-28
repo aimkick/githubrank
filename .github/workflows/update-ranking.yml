@@ -1,0 +1,80 @@
+name: 更新GitHub仓库排名
+
+on:
+  schedule:
+    # 每天UTC时间04:00运行 (北京时间12:00)
+    - cron: '0 4 * * *'
+  workflow_dispatch: # 允许手动触发
+  push:
+    branches: [ main, master ]
+    paths: 
+      - '**.py'
+      - 'requirements.txt'
+      - '.github/workflows/update-ranking.yml'
+
+jobs:
+  update-ranking:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+        
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: 运行排名更新脚本
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        python update_ranking.py
+        
+    - name: 检查文件变化
+      id: verify-changed-files
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: 提交更新
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "🤖 自动更新GitHub仓库排名 - $(date +'%Y-%m-%d %H:%M:%S')"
+        
+    - name: 推送更改
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        
+    - name: 部署到GitHub Pages
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
+        publish_branch: gh-pages
+        
+    - name: 发送更新通知
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      run: |
+        echo "✅ GitHub仓库排名已更新"
+        echo "📊 数据文件: github_ranking.json"
+        echo "🌐 展示页面: docs/index.html"
+        echo "🔗 在线访问: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" 

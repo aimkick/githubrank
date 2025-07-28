@@ -28,7 +28,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         
     - name: 设置Python环境
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.9'
         cache: 'pip'
@@ -68,13 +68,13 @@ jobs:
         
     - name: 上传Pages构件
       if: steps.verify-changed-files.outputs.changed == 'true'
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: ./docs
         
     - name: 部署到GitHub Pages
       if: steps.verify-changed-files.outputs.changed == 'true'
-      uses: actions/deploy-pages@v3
+      uses: actions/deploy-pages@v4
         
     - name: 发送更新通知
       if: steps.verify-changed-files.outputs.changed == 'true'

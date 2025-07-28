@@ -33,6 +33,14 @@ class GitHubStyleGenerator:
             "总体-Forks"
         ]
         
+        # 定义显示标题映射
+        title_mapping = {
+            "📈 本周成长最快": "📈 本周成长最快",
+            "🆕 当周热门新项目": "🆕 当周热门新项目",
+            "总体-Stars": "Github Stars排行榜总榜",
+            "总体-Forks": "Github Forks排行榜总榜"
+        }
+        
         # 过滤数据，只保留主要分类
         filtered_data = {}
         for category in main_categories:
@@ -480,7 +488,7 @@ class GitHubStyleGenerator:
             html += f"""
             <div class="section" id="{safe_category}">
                 <div class="section-header">
-                    <h2 class="section-title">{category}</h2>
+                    <h2 class="section-title">{title_mapping.get(category, category)}</h2>
                     <div class="section-meta">Top {min(len(filtered_data[category]), 20)} 项目</div>
                 </div>
                 <ol class="repo-list">"""

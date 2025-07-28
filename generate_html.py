@@ -640,7 +640,7 @@ def main():
     
     try:
         # 初始化DeepSeek翻译器
-        api_key = "sk-5a2d0c3852424a3ab303dd3ff4c1e667"
+        api_key = os.environ.get("DEEPSEEK_API_KEY", "sk-5a2d0c3852424a3ab303dd3ff4c1e667")
         init_translator(api_key)
         print("✅ DeepSeek翻译器初始化成功")
         

@@ -27,7 +27,7 @@ class GitHubStyleGenerator:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
+    <title>📊 Github排行榜中文版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/18.2.0/octicons.min.css">
     <style>
@@ -429,7 +429,7 @@ class GitHubStyleGenerator:
                     <svg class="octicon octicon-mark-github" viewBox="0 0 16 16" width="24" height="24" aria-hidden="true">
                         <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
                     </svg>
-                    GitHub仓库排名
+                    Github排行榜中文版
                 </a>
                 <div class="stats-summary">
                     <div class="stat-item">
@@ -448,7 +448,7 @@ class GitHubStyleGenerator:
     <main class="main-content">
         <div class="container">
             <div class="page-header">
-                <h1 class="page-title">⭐ GitHub仓库排名</h1>
+                <h1 class="page-title">⭐ Github排行榜中文版</h1>
                 <p class="page-description">
                     发现GitHub上最受欢迎的开源项目，按语言分类展示最具影响力的代码仓库
                 </p>
@@ -472,11 +472,11 @@ class GitHubStyleGenerator:
         # 3. 最后是各语言分类
         
         display_order = []
-        # 优先显示两种趋势数据
-        if '🆕 当周热门新项目' in data:
-            display_order.append('🆕 当周热门新项目')
+        # 优先显示两种趋势数据：本周成长最快在前
         if '📈 本周成长最快' in data:
             display_order.append('📈 本周成长最快')
+        if '🆕 当周热门新项目' in data:
+            display_order.append('🆕 当周热门新项目')
         
         # 添加总体排名
         for category in ['总体-Stars', '总体-Forks']:
@@ -612,7 +612,7 @@ class GitHubStyleGenerator:
                 项目开源：<a href="https://github.com/aimkick/githubrank" target="_blank">GitHub</a> | 
                 每日自动更新
             </p>
-            <p>© 2025 GitHub仓库排名 | 发现优秀的开源项目</p>
+            <p>© 2025 Github排行榜中文版 | 发现优秀的开源项目</p>
         </div>
     </footer>
     
@@ -665,9 +665,14 @@ def main():
     
     try:
         # 初始化DeepSeek翻译器
-        api_key = os.environ.get("DEEPSEEK_API_KEY", "sk-5a2d0c3852424a3ab303dd3ff4c1e667")
+        api_key = os.environ.get("DEEPSEEK_API_KEY")
+        if not api_key:
+            print("⚠️  警告：未找到DEEPSEEK_API_KEY环境变量，翻译功能将不可用")
+            api_key = None
+        else:
+            print("✅ 找到DeepSeek API密钥，启用翻译功能")
+        
         init_translator(api_key)
-        print("✅ DeepSeek翻译器初始化成功")
         
         with open("github_ranking.json", 'r', encoding='utf-8') as f:
             json_data = json.load(f)

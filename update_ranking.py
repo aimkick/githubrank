@@ -44,14 +44,14 @@ def main():
         ranking = GitHubRanking(token=github_token)
         data = ranking.get_top_repositories(languages=languages, top_n=100)
         
-        # 新增：获取两种趋势数据
-        print("\n🆕 获取当周热门新项目...")
-        new_trending_data = ranking.get_trending_new_repos(top_n=20)
-        data['🆕 当周热门新项目'] = new_trending_data
-        
+        # 新增：获取两种趋势数据（优先成长最快）
         print("\n📈 获取本周成长最快项目...")
         growing_data = ranking.get_fastest_growing_repos(top_n=20)
         data['📈 本周成长最快'] = growing_data
+        
+        print("\n🆕 获取当周热门新项目...")
+        new_trending_data = ranking.get_trending_new_repos(top_n=20)
+        data['🆕 当周热门新项目'] = new_trending_data
         
         # 保存原始数据
         print("\n💾 保存数据文件...")
@@ -60,7 +60,13 @@ def main():
         
         # 步骤2: 初始化翻译器并生成HTML页面
         print("\n🔄 初始化DeepSeek翻译器...")
-        api_key = os.environ.get("DEEPSEEK_API_KEY", "sk-5a2d0c3852424a3ab303dd3ff4c1e667")
+        api_key = os.environ.get("DEEPSEEK_API_KEY")
+        if not api_key:
+            print("⚠️  警告：未找到DEEPSEEK_API_KEY环境变量，翻译功能将不可用")
+            api_key = None
+        else:
+            print("✅ 找到DeepSeek API密钥，启用翻译功能")
+        
         init_translator(api_key)
         
         print("\n🌐 生成HTML展示页面...")

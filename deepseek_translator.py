@@ -187,13 +187,44 @@ class DeepSeekTranslator:
 translator = None
 
 def init_translator(api_key: str):
-    """初始化翻译器"""
     global translator
-    translator = DeepSeekTranslator(api_key)
+    if api_key:
+        translator = DeepSeekTranslator(api_key)
+        print("✅ DeepSeek翻译器初始化成功")
+    else:
+        translator = None
+        print("⚠️  DeepSeek翻译器未初始化，将使用基础翻译功能")
 
 def translate_text(text: str) -> str:
-    """对外提供的翻译接口"""
     if translator is None:
-        # 如果没有初始化，返回原文
-        return text
-    return translator.translate_description(text) 
+        # 提供基础翻译功能作为降级方案
+        return _basic_translation(text)
+    return translator.translate_description(text)
+
+def _basic_translation(text: str) -> str:
+    """基础翻译功能作为降级方案"""
+    if not text or text == "":
+        return "暂无描述"
+    
+    # 基础技术词汇翻译
+    basic_dict = {
+        "library": "库",
+        "framework": "框架", 
+        "tool": "工具",
+        "application": "应用程序",
+        "JavaScript": "JavaScript",
+        "Python": "Python",
+        "machine learning": "机器学习",
+        "artificial intelligence": "人工智能",
+        "web": "网页",
+        "API": "API",
+        "database": "数据库",
+        "open source": "开源",
+        "development": "开发"
+    }
+    
+    translated = text
+    for en, zh in basic_dict.items():
+        translated = translated.replace(en, zh)
+    
+    return translated 

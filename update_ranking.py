@@ -9,7 +9,8 @@ import os
 import sys
 from datetime import datetime
 from github_ranking import GitHubRanking
-from generate_html import HTMLGenerator
+from generate_html import GitHubStyleGenerator
+from deepseek_translator import init_translator
 
 def main():
     """
@@ -47,10 +48,14 @@ def main():
         ranking.save_to_json(data, "github_ranking.json")
         ranking.save_to_csv(data, "data")
         
-        # 步骤2: 生成HTML页面
+        # 步骤2: 初始化翻译器并生成HTML页面
+        print("\n🔄 初始化DeepSeek翻译器...")
+        api_key = "sk-5a2d0c3852424a3ab303dd3ff4c1e667"
+        init_translator(api_key)
+        
         print("\n🌐 生成HTML展示页面...")
-        generator = HTMLGenerator()
-        generator.save_pages(data)
+        generator = GitHubStyleGenerator()
+        generator.save_github_style_page(data)
         
         # 步骤3: 生成统计信息
         print("\n📈 生成统计报告...")

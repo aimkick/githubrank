@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub仓库排名</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .update-time {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .navigation {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .nav-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .nav-link {
+            padding: 12px 20px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #495057;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: block;
+            text-align: center;
+        }
+        
+        .nav-link:hover {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+            transform: translateY(-2px);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .rank {
+            font-weight: 700;
+            color: #007bff;
+        }
+        
+        .repo-name {
+            font-weight: 600;
+        }
+        
+        .repo-name a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .repo-name a:hover {
+            text-decoration: underline;
+        }
+        
+        .description {
+            color: #6c757d;
+            font-size: 0.9rem;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+        
+        .language {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #007bff;
+            color: white;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .star-icon, .fork-icon {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⭐ GitHub仓库排名 ⭐</h1>
+            <div class="subtitle">GitHub上最受欢迎的开源项目排行榜</div>
+            <div class="update-time">最后更新时间: 2025年07月26日 15:46:09</div>
+        </div>
+        
+        <div class="navigation">
+            <h3 class="nav-title">📊 排行榜分类</h3>
+            <div class="nav-links">                <a href="#总体-Stars" class="nav-link">总体-Stars</a>
+                <a href="#总体-Forks" class="nav-link">总体-Forks</a>
+                <a href="#JavaScript" class="nav-link">JavaScript</a>
+                <a href="#Python" class="nav-link">Python</a>
+                <a href="#Java" class="nav-link">Java</a>
+                <a href="#TypeScript" class="nav-link">TypeScript</a>
+                <a href="#C#" class="nav-link">C#</a>
+                <a href="#C++" class="nav-link">C++</a>
+                <a href="#C" class="nav-link">C</a>
+                <a href="#Go" class="nav-link">Go</a>
+                <a href="#Rust" class="nav-link">Rust</a>
+                <a href="#Kotlin" class="nav-link">Kotlin</a>
+                <a href="#Swift" class="nav-link">Swift</a>
+                <a href="#Ruby" class="nav-link">Ruby</a>
+                <a href="#PHP" class="nav-link">PHP</a>
+                <a href="#Scala" class="nav-link">Scala</a>
+                <a href="#HTML" class="nav-link">HTML</a>
+                <a href="#CSS" class="nav-link">CSS</a>
+                <a href="#Shell" class="nav-link">Shell</a>
+                <a href="#PowerShell" class="nav-link">PowerShell</a>
+                <a href="#Dart" class="nav-link">Dart</a>
+                <a href="#Lua" class="nav-link">Lua</a>
+                <a href="#R" class="nav-link">R</a>
+                <a href="#MATLAB" class="nav-link">MATLAB</a>
+                <a href="#Objective-C" class="nav-link">Objective-C</a>
+                <a href="#Perl" class="nav-link">Perl</a>
+                <a href="#Haskell" class="nav-link">Haskell</a>
+                <a href="#Clojure" class="nav-link">Clojure</a>
+                <a href="#Elixir" class="nav-link">Elixir</a>
+                <a href="#Julia" class="nav-link">Julia</a>
+                <a href="#Vim_script" class="nav-link">Vim script</a>
+                <a href="#TeX" class="nav-link">TeX</a>
+            </div>
+        </div>
+        <div class="section" id="总体-Stars">
+            <h2>总体-Stars Top 20</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>项目名称</th>
+                            <th>描述</th>
+                            <th>语言</th>
+                            <th>统计</th>
+                            <th>最后更新</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="rank">1</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">freeCodeCamp</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">2</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">build-your-own-x</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">3</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">awesome</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">4</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">free-programming-books</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">5</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">public-apis</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">6</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">developer-roadmap</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">7</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">coding-interview-university</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">8</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">system-design-primer</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">9</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">996.ICU</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">10</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">awesome-python</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">11</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">awesome-selfhosted</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">12</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">react</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">13</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">project-based-learning</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">14</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">vue</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">15</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">Python</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">16</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">linux</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">17</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">javascript-algorithms</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">18</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">tensorflow</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">19</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">computer-science</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                        <tr>
+                            <td class="rank">20</td>
+                            <td class="repo-name">
+                                <a href="" target="_blank">You-Dont-Know-JS</a>
+                            </td>
+                            <td class="description">暂无描述</td>
+                            <td><span class="language">未知</span></td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat">
+                                        <span>⭐</span>
+                                        <span>0</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span>🍴</span>
+                                        <span>0</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>未知</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="footer">
+            <p>数据来源：GitHub API | 本项目开源，欢迎贡献</p>
+            <p>© 2025 GitHub仓库排名 | 每日自动更新</p>
+        </div>
+    </div>
+    
+    <script>
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

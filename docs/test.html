@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面 - GitHub排名</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        .status {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .link {
+            color: #FFE082;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 部署成功！</h1>
+        <p>您的GitHub Pages已经正常工作了</p>
+        
+        <div class="status">
+            <h3>✅ 系统状态</h3>
+            <p>GitHub Actions: 正常运行</p>
+            <p>页面部署: 成功</p>
+            <p>访问测试: 通过</p>
+        </div>
+        
+        <p>
+            <a href="index.html" class="link">🚀 查看GitHub排名首页</a>
+        </p>
+        
+        <p>
+            <small>如果您看到此页面，说明GitHub Pages配置正确</small>
+        </p>
+    </div>
+    
+    <script>
+        // 自动跳转到主页（3秒后）
+        setTimeout(() => {
+            if (confirm('3秒后将自动跳转到排名首页，继续吗？')) {
+                window.location.href = 'index.html';
+            }
+        }, 3000);
+    </script>
+</body>
+</html> 

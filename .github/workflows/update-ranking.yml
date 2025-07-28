@@ -1,15 +1,16 @@
-name: 更新GitHub仓库排名
+name: Update GitHub Repository Ranking
 
 on:
   schedule:
-    # 每天UTC时间04:00运行 (北京时间12:00)
-    - cron: '0 4 * * *'
+    # 每周一 00:00 UTC 运行 (北京时间周一 08:00)
+    - cron: '0 0 * * 1'
   workflow_dispatch: # 允许手动触发
   push:
-    branches: [ main, master ]
-    paths: 
-      - '**.py'
-      - 'requirements.txt'
+    branches: [ main ]
+    paths:
+      - 'github_ranking.py'
+      - 'generate_html.py'
+      - 'update_ranking.py'
       - '.github/workflows/update-ranking.yml'
 
 permissions:
@@ -22,63 +23,29 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: 检出代码
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: 设置Python环境
-      uses: actions/setup-python@v5
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
         python-version: '3.9'
-        cache: 'pip'
-        
-    - name: 安装依赖
+    
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        
-    - name: 运行排名更新脚本
+        pip install requests beautifulsoup4
+    
+    - name: Update repository ranking
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       run: |
         python update_ranking.py
-        
-    - name: 检查文件变化
-      id: verify-changed-files
-      run: |
-        if [ -n "$(git status --porcelain)" ]; then
-          echo "changed=true" >> $GITHUB_OUTPUT
-        else
-          echo "changed=false" >> $GITHUB_OUTPUT
-        fi
-        
-    - name: 提交更新
-      if: steps.verify-changed-files.outputs.changed == 'true'
+    
+    - name: Commit and push changes
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add .
-        git commit -m "🤖 自动更新GitHub仓库排名 - $(date +'%Y-%m-%d %H:%M:%S')"
-        
-    - name: 推送更改
-      if: steps.verify-changed-files.outputs.changed == 'true'
-      run: |
-        git pull origin main --rebase
-        git push origin main
-        
-    - name: 上传Pages构件
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: ./docs
-        
-    - name: 部署到GitHub Pages
-      uses: actions/deploy-pages@v4
-        
-    - name: 发送更新通知
-      if: steps.verify-changed-files.outputs.changed == 'true'
-      run: |
-        echo "✅ GitHub仓库排名已更新"
-        echo "📊 数据文件: github_ranking.json"
-        echo "🌐 展示页面: docs/index.html"
-        echo "🔗 在线访问: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" 
+        git add docs/index.html github_ranking.json data/
+        git diff --staged --quiet || git commit -m "🤖 自动更新GitHub排行榜 $(date +'%Y-%m-%d %H:%M:%S')"
+        git push 

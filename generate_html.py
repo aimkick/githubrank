@@ -22,6 +22,11 @@ class GitHubStyleGenerator:
         """
         update_time = datetime.now().strftime("%Y年%m月%d日 %H:%M:%S")
         
+        # 计算统计数据  
+        data_dict = data.get('数据', data) if isinstance(data, dict) and '数据' in data else data
+        total_repos = sum(len(repos) for repos in data_dict.values()) if data_dict else 0
+        total_categories = len(data_dict) if data_dict else 0
+        
         html = f"""<!DOCTYPE html>
 <html lang="zh-CN" data-color-mode="auto" data-light-theme="light" data-dark-theme="dark">
 <head>
@@ -432,14 +437,9 @@ class GitHubStyleGenerator:
                     Github排行榜中文版
                 </a>
                 <div class="stats-summary">
-                    <div class="stat-item">
-                        <span>📊 最后更新</span>
-                        <span>{update_time}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>🔄 自动更新</span>
-                        <span>每日12:00</span>
-                    </div>
+                    <p>📅 最后更新 {update_time}</p>
+                    <p>🔄 自动更新 每周一 08:00</p>
+                    <p>�� 总计 {total_repos} 个项目，{total_categories} 个分类</p>
                 </div>
             </div>
         </div>
@@ -459,7 +459,7 @@ class GitHubStyleGenerator:
                 <div class="nav-tabs">"""
         
         # 生成导航标签
-        for category in data.keys():
+        for category in data_dict.keys():
             safe_category = category.replace('/', '_').replace(' ', '_')
             html += f'                    <a href="#{safe_category}" class="nav-tab">{category}</a>\n'
         
@@ -471,25 +471,22 @@ class GitHubStyleGenerator:
         # 2. 然后是总体排名  
         # 3. 最后是各语言分类
         
-        display_order = []
-        # 优先显示两种趋势数据：本周成长最快在前
-        if '📈 本周成长最快' in data:
-            display_order.append('📈 本周成长最快')
-        if '🆕 当周热门新项目' in data:
-            display_order.append('🆕 当周热门新项目')
+        # 准备显示顺序 - 本周成长最快在前
+        display_order = [
+            "📈 本周成长最快",
+            "🆕 当周热门新项目", 
+            "总体-Stars",
+            "总体-Forks"
+        ]
         
-        # 添加总体排名
-        for category in ['总体-Stars', '总体-Forks']:
-            if category in data:
-                display_order.append(category)
-        
-        # 添加其他语言分类
-        for category in sorted(data.keys()):
-            if category not in display_order:
-                display_order.append(category)
+        # 添加其他语言分类（按字母顺序）
+        other_categories = [cat for cat in data_dict.keys() 
+                          if cat not in display_order]
+        other_categories.sort()
+        display_order.extend(other_categories)
         
         for category in display_order:
-            if not data.get(category):
+            if not data_dict.get(category):
                 continue
                 
             safe_category = category.replace('/', '_').replace(' ', '_')
@@ -497,13 +494,13 @@ class GitHubStyleGenerator:
             <div class="section" id="{safe_category}">
                 <div class="section-header">
                     <h2 class="section-title">{category}</h2>
-                    <div class="section-meta">Top {min(len(data[category]), 20)} 项目</div>
+                    <div class="section-meta">Top {min(len(data_dict[category]), 20)} 项目</div>
                 </div>
                 <ol class="repo-list">"""
             
             # 总榜显示20个，其他显示10个
             display_count = 20 if category in ['总体-Stars', '总体-Forks'] else 10
-            for i, repo in enumerate(data[category][:display_count], 1):
+            for i, repo in enumerate(data_dict[category][:display_count], 1):
                 repo_name = repo.get('完整名称', repo.get('项目名称', ''))
                 repo_link = repo.get('仓库链接', '')
                 description = repo.get('描述', '暂无描述')
@@ -642,6 +639,13 @@ class GitHubStyleGenerator:
     </script>
 </body>
 </html>"""
+        
+        # 替换模板中的变量
+        html = html.format(
+            update_time=update_time,
+            total_repos=total_repos,
+            total_categories=total_categories
+        )
         
         return html
     

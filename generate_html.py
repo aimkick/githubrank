@@ -397,32 +397,8 @@ class GitHubStyleGenerator:
                 gap: 8px;
             }}
         }}
-
-        .category {
-            margin-bottom: 40px;
-            background: #f6f8fa;
-            border-radius: 8px;
-            padding: 24px;
-            border: 1px solid #d0d7de;
-        }
         
-        .category.trending {
-            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
-            border: 2px solid #e17055;
-        }
-        
-        .category.growing {
-            background: linear-gradient(135deg, #81ecec 0%, #74b9ff 100%);
-            border: 2px solid #0984e3;
-        }
-
-        .stats-column svg {
-            width: 16px;
-            height: 16px;
-            fill: #656d76;
-        }
-        
-        .new-badge {
+        .new-badge {{
             background: linear-gradient(45deg, #00b894, #00cec9);
             color: white;
             padding: 2px 6px;
@@ -431,9 +407,9 @@ class GitHubStyleGenerator:
             font-weight: 600;
             text-transform: uppercase;
             margin-left: 8px;
-        }
+        }}
         
-        .hot-badge {
+        .hot-badge {{
             background: linear-gradient(45deg, #e84393, #fd79a8);
             color: white;
             padding: 2px 6px;
@@ -442,7 +418,7 @@ class GitHubStyleGenerator:
             font-weight: 600;
             text-transform: uppercase;
             margin-left: 8px;
-        }
+        }}
     </style>
 </head>
 <body>

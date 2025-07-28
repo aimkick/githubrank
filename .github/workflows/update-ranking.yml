@@ -64,16 +64,15 @@ jobs:
     - name: 推送更改
       if: steps.verify-changed-files.outputs.changed == 'true'
       run: |
+        git pull origin main --rebase
         git push origin main
         
     - name: 上传Pages构件
-      if: steps.verify-changed-files.outputs.changed == 'true'
       uses: actions/upload-pages-artifact@v3
       with:
         path: ./docs
         
     - name: 部署到GitHub Pages
-      if: steps.verify-changed-files.outputs.changed == 'true'
       uses: actions/deploy-pages@v4
         
     - name: 发送更新通知

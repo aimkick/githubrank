@@ -444,9 +444,27 @@ class GitHubStyleGenerator:
         html += """                </div>
             </div>"""
         
-        # 生成各分类的排名列表
-        for category, repos in data.items():
-            if not repos:
+        # 生成各分类的排名列表 - 调整显示顺序
+        # 1. 首先显示当周热门
+        # 2. 然后是总体排名  
+        # 3. 最后是各语言分类
+        
+        display_order = []
+        if '🔥 当周热门' in data:
+            display_order.append('🔥 当周热门')
+        
+        # 添加总体排名
+        for category in ['总体-Stars', '总体-Forks']:
+            if category in data:
+                display_order.append(category)
+        
+        # 添加其他语言分类
+        for category in sorted(data.keys()):
+            if category not in display_order:
+                display_order.append(category)
+        
+        for category in display_order:
+            if not data.get(category):
                 continue
                 
             safe_category = category.replace('/', '_').replace(' ', '_')
@@ -454,12 +472,13 @@ class GitHubStyleGenerator:
             <div class="section" id="{safe_category}">
                 <div class="section-header">
                     <h2 class="section-title">{category}</h2>
-                    <div class="section-meta">Top {min(len(repos), 20)} 项目</div>
+                    <div class="section-meta">Top {min(len(data[category]), 20)} 项目</div>
                 </div>
                 <ol class="repo-list">"""
             
-            # 显示前20个项目
-            for i, repo in enumerate(repos[:20], 1):
+            # 总榜显示20个，其他显示10个
+            display_count = 20 if category in ['总体-Stars', '总体-Forks'] else 10
+            for i, repo in enumerate(data[category][:display_count], 1):
                 repo_name = repo.get('完整名称', repo.get('项目名称', ''))
                 repo_link = repo.get('仓库链接', '')
                 description = repo.get('描述', '暂无描述')

@@ -21,20 +21,21 @@ def main():
     print(f"更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 50)
     
-    # 从环境变量获取GitHub Token（可选）
+    # 改进GitHub token处理
     github_token = os.environ.get('GITHUB_TOKEN')
-    if github_token:
-        print("✅ 检测到GitHub Token，将使用认证API")
+    if not github_token:
+        print("⚠️  警告：未找到GITHUB_TOKEN环境变量")
+        print("   将使用无token模式（可能遇到速率限制）")
+        github_token = None  # 允许无token运行
     else:
-        print("⚠️  未检测到GitHub Token，使用公共API（有速率限制）")
+        print("✅ 找到GitHub Token，使用认证模式")
     
-    # 定义要抓取的编程语言
+    # GitHub仓库的语言列表
     languages = [
-        "JavaScript", "Python", "Java", "TypeScript", "C#", "C++", "C", 
-        "Go", "Rust", "Kotlin", "Swift", "Ruby", "PHP", "Scala", 
-        "HTML", "CSS", "Shell", "PowerShell", "Dart", "Lua", "R",
-        "MATLAB", "Objective-C", "Perl", "Haskell", "Clojure", "Elixir",
-        "Julia", "Vim script", "TeX"
+        'JavaScript', 'Python', 'Java', 'TypeScript', 'C#', 'C++', 'C', 'Go', 'Rust',
+        'Kotlin', 'Swift', 'Ruby', 'PHP', 'Scala', 'HTML', 'CSS', 'Shell', 'PowerShell',
+        'Dart', 'Lua', 'R', 'MATLAB', 'Objective-C', 'Perl', 'Haskell', 'Clojure', 
+        'Elixir', 'Julia', 'Vim script', 'TeX'
     ]
     
     try:
@@ -42,6 +43,13 @@ def main():
         print("\n📊 开始获取GitHub仓库数据...")
         ranking = GitHubRanking(token=github_token)
         data = ranking.get_top_repositories(languages=languages, top_n=100)
+        
+        # 新增：获取趋势数据
+        print("\n🔥 获取当周成长最快项目...")
+        trending_data = ranking.get_trending_repositories(time_range='week', top_n=20)
+        
+        # 将趋势数据添加到主数据中
+        data['🔥 当周热门'] = trending_data
         
         # 保存原始数据
         print("\n💾 保存数据文件...")

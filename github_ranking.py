@@ -188,61 +188,104 @@ class GitHubRanking:
         获取趋势仓库 (当周/月成长最快)
         """
         print(f"🔥 正在获取{time_range}趋势仓库...")
-        
         trending_repos = []
         
-        # GitHub Search API for trending repos
-        # 搜索最近一周/月创建或有大量stars的项目
-        from datetime import datetime, timedelta
-        
-        if time_range == 'week':
-            since_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
-            query = f"created:>{since_date} stars:>50"
-        else:  # month
-            since_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
-            query = f"created:>{since_date} stars:>100"
-        
-        # 分页获取
-        page = 1
-        while len(trending_repos) < top_n and page <= 5:
-            url = f"{self.base_url}/search/repositories"
-            params = {
-                'q': query,
-                'sort': 'stars',
-                'order': 'desc',
-                'per_page': min(100, top_n - len(trending_repos)),
-                'page': page
-            }
+        try:
+            from datetime import datetime, timedelta
             
-            try:
-                response = self.session.get(url, params=params)
-                response.raise_for_status()
-                
+            # 计算时间范围
+            if time_range == 'week':
+                days = 7
+            elif time_range == 'month':
+                days = 30
+            else:
+                days = 7
+            
+            # 计算开始日期
+            start_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
+            
+            # 构建搜索查询 - 基于创建时间和stars
+            query = f"created:>{start_date} stars:>50"
+            url = f"https://api.github.com/search/repositories?q={query}&sort=stars&order=desc&per_page={top_n}&page=1"
+            
+            print(f"搜索查询: {query}")
+            response = self.session.get(url)
+            
+            if response.status_code == 200:
                 data = response.json()
-                if response.status_code == 200 and 'items' in data:
-                    for repo in data['items']:
-                        if len(trending_repos) >= top_n:
-                            break
-                        
-                        repo_info = self.format_repository_data(repo) # Use format_repository_data
-                        if repo_info:
-                            trending_repos.append(repo_info)
-                    
-                    # 如果返回的结果少于请求的数量，说明没有更多数据了
-                    if len(data['items']) < params['per_page']:
-                        break
-                else:
-                    break
-                    
-            except requests.RequestException as e:
-                print(f"获取趋势仓库失败: {e}")
-                break
-            
-            page += 1
-            time.sleep(0.5)  # 避免触发速率限制
+                trending_repos = data.get('items', [])
+                print(f"✅ 获取到 {len(trending_repos)} 个趋势仓库")
+            else:
+                print(f"获取趋势仓库失败: {response.status_code} {response.reason}")
+                
+        except Exception as e:
+            print(f"获取趋势仓库异常: {e}")
         
-        print(f"✅ 获取到 {len(trending_repos)} 个趋势仓库")
         return trending_repos
+
+    def get_trending_new_repos(self, top_n=20):
+        """
+        获取当周热门新项目 - 本周新创建且快速增长的项目
+        """
+        print(f"🆕 正在获取当周热门新项目...")
+        new_trending_repos = []
+        
+        try:
+            from datetime import datetime, timedelta
+            
+            # 本周新创建的项目
+            start_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+            
+            # 搜索本周创建的高质量新项目
+            query = f"created:>{start_date} stars:>10"
+            url = f"https://api.github.com/search/repositories?q={query}&sort=stars&order=desc&per_page={top_n}&page=1"
+            
+            print(f"搜索新项目查询: {query}")
+            response = self.session.get(url)
+            
+            if response.status_code == 200:
+                data = response.json()
+                new_trending_repos = data.get('items', [])
+                print(f"✅ 获取到 {len(new_trending_repos)} 个当周新项目")
+            else:
+                print(f"获取新项目失败: {response.status_code} {response.reason}")
+                
+        except Exception as e:
+            print(f"获取新项目异常: {e}")
+        
+        return new_trending_repos
+
+    def get_fastest_growing_repos(self, top_n=20):
+        """
+        获取本周成长最快的项目 - 现有项目在本周stars增长最多
+        """
+        print(f"📈 正在获取本周成长最快项目...")
+        growing_repos = []
+        
+        try:
+            from datetime import datetime, timedelta
+            
+            # 获取过去一周更新活跃的高star项目
+            start_date = (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d')
+            
+            # 搜索最近更新且高stars的项目（推荐活跃成长项目）
+            query = f"pushed:>{start_date} stars:>1000"
+            url = f"https://api.github.com/search/repositories?q={query}&sort=stars&order=desc&per_page={top_n}&page=1"
+            
+            print(f"搜索成长项目查询: {query}")
+            response = self.session.get(url)
+            
+            if response.status_code == 200:
+                data = response.json()
+                growing_repos = data.get('items', [])
+                print(f"✅ 获取到 {len(growing_repos)} 个成长最快项目")
+            else:
+                print(f"获取成长项目失败: {response.status_code} {response.reason}")
+                
+        except Exception as e:
+            print(f"获取成长项目异常: {e}")
+        
+        return growing_repos
 
 def main():
     """

@@ -44,12 +44,14 @@ def main():
         ranking = GitHubRanking(token=github_token)
         data = ranking.get_top_repositories(languages=languages, top_n=100)
         
-        # 新增：获取趋势数据
-        print("\n🔥 获取当周成长最快项目...")
-        trending_data = ranking.get_trending_repositories(time_range='week', top_n=20)
+        # 新增：获取两种趋势数据
+        print("\n🆕 获取当周热门新项目...")
+        new_trending_data = ranking.get_trending_new_repos(top_n=20)
+        data['🆕 当周热门新项目'] = new_trending_data
         
-        # 将趋势数据添加到主数据中
-        data['🔥 当周热门'] = trending_data
+        print("\n📈 获取本周成长最快项目...")
+        growing_data = ranking.get_fastest_growing_repos(top_n=20)
+        data['📈 本周成长最快'] = growing_data
         
         # 保存原始数据
         print("\n💾 保存数据文件...")

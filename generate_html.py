@@ -397,6 +397,52 @@ class GitHubStyleGenerator:
                 gap: 8px;
             }}
         }}
+
+        .category {
+            margin-bottom: 40px;
+            background: #f6f8fa;
+            border-radius: 8px;
+            padding: 24px;
+            border: 1px solid #d0d7de;
+        }
+        
+        .category.trending {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            border: 2px solid #e17055;
+        }
+        
+        .category.growing {
+            background: linear-gradient(135deg, #81ecec 0%, #74b9ff 100%);
+            border: 2px solid #0984e3;
+        }
+
+        .stats-column svg {
+            width: 16px;
+            height: 16px;
+            fill: #656d76;
+        }
+        
+        .new-badge {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+        
+        .hot-badge {
+            background: linear-gradient(45deg, #e84393, #fd79a8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
@@ -450,8 +496,11 @@ class GitHubStyleGenerator:
         # 3. 最后是各语言分类
         
         display_order = []
-        if '🔥 当周热门' in data:
-            display_order.append('🔥 当周热门')
+        # 优先显示两种趋势数据
+        if '🆕 当周热门新项目' in data:
+            display_order.append('🆕 当周热门新项目')
+        if '📈 本周成长最快' in data:
+            display_order.append('📈 本周成长最快')
         
         # 添加总体排名
         for category in ['总体-Stars', '总体-Forks']:

@@ -295,7 +295,11 @@ class HTMLGenerator:
                 repo_name = repo.get('完整名称', repo.get('name', ''))
                 repo_link = repo.get('仓库链接', '')
                 description = repo.get('描述', '暂无描述')
+                if description in [None, '', 'null']:
+                    description = '暂无描述'
                 language = repo.get('语言', '未知')
+                if language in [None, '', 'null']:
+                    language = '未知'
                 stars = repo.get('Stars', 0)
                 forks = repo.get('Forks', 0)
                 updated = repo.get('更新时间', '')

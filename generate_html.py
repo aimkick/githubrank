@@ -24,10 +24,25 @@ class GitHubStyleGenerator:
         
         # 计算统计数据  
         data_dict = data.get('数据', data) if isinstance(data, dict) and '数据' in data else data
-        total_repos = sum(len(repos) for repos in data_dict.values()) if data_dict else 0
-        total_categories = len(data_dict) if data_dict else 0
         
-        html = f"""<!DOCTYPE html>
+        # 只保留4个主要分类
+        main_categories = [
+            "📈 本周成长最快",
+            "🆕 当周热门新项目", 
+            "总体-Stars",
+            "总体-Forks"
+        ]
+        
+        # 过滤数据，只保留主要分类
+        filtered_data = {}
+        for category in main_categories:
+            if category in data_dict:
+                filtered_data[category] = data_dict[category]
+        
+        total_repos = sum(len(repos) for repos in filtered_data.values()) if filtered_data else 0
+        total_categories = len(filtered_data) if filtered_data else 0
+        
+        html = """<!DOCTYPE html>
 <html lang="zh-CN" data-color-mode="auto" data-light-theme="light" data-dark-theme="dark">
 <head>
     <meta charset="UTF-8">
@@ -36,7 +51,7 @@ class GitHubStyleGenerator:
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/18.2.0/octicons.min.css">
     <style>
-        :root {{
+        :root {
             --color-accent-fg: #0969da;
             --color-success-fg: #1a7f37;
             --color-attention-fg: #9a6700;
@@ -48,10 +63,10 @@ class GitHubStyleGenerator:
             --color-fg-muted: #656d76;
             --color-canvas-default: #ffffff;
             --color-canvas-subtle: #f6f8fa;
-        }}
+        }
         
-        @media (prefers-color-scheme: dark) {{
-            :root {{
+        @media (prefers-color-scheme: dark) {
+            :root {
                 --color-accent-fg: #58a6ff;
                 --color-success-fg: #56d364;
                 --color-attention-fg: #e3b341;
@@ -63,14 +78,14 @@ class GitHubStyleGenerator:
                 --color-fg-muted: #8b949e;
                 --color-canvas-default: #0d1117;
                 --color-canvas-subtle: #161b22;
-            }}
-        }}
+            }
+        }
         
-        * {{
+        * {
             box-sizing: border-box;
-        }}
+        }
         
-        body {{
+        body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
             font-size: 14px;
             line-height: 1.5;
@@ -78,32 +93,32 @@ class GitHubStyleGenerator:
             background-color: var(--color-canvas-default);
             margin: 0;
             padding: 0;
-        }}
+        }
         
-        .header {{
+        .header {
             background-color: var(--color-canvas-subtle);
             border-bottom: 1px solid var(--color-border-default);
             padding: 16px 0;
             position: sticky;
             top: 0;
             z-index: 100;
-        }}
+        }
         
-        .container {{
+        .container {
             max-width: 1280px;
             margin: 0 auto;
             padding: 0 16px;
-        }}
+        }
         
-        .header-content {{
+        .header-content {
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 16px;
-        }}
+        }
         
-        .logo {{
+        .logo {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -111,71 +126,71 @@ class GitHubStyleGenerator:
             font-weight: 600;
             color: var(--color-fg-default);
             text-decoration: none;
-        }}
+        }
         
-        .logo .octicon {{
+        .logo .octicon {
             width: 24px;
             height: 24px;
-        }}
+        }
         
-        .stats-summary {{
+        .stats-summary {
             display: flex;
             gap: 24px;
             font-size: 12px;
             color: var(--color-fg-muted);
-        }}
+        }
         
-        .stat-item {{
+        .stat-item {
             display: flex;
             align-items: center;
             gap: 4px;
-        }}
+        }
         
-        .main-content {{
+        .main-content {
             padding: 24px 0;
-        }}
+        }
         
-        .page-header {{
+        .page-header {
             margin-bottom: 24px;
             padding-bottom: 16px;
             border-bottom: 1px solid var(--color-border-default);
-        }}
+        }
         
-        .page-title {{
+        .page-title {
             font-size: 24px;
             font-weight: 600;
             margin: 0 0 8px 0;
             color: var(--color-fg-default);
-        }}
+        }
         
-        .page-description {{
+        .page-description {
             font-size: 14px;
             color: var(--color-fg-muted);
             margin: 0;
-        }}
+        }
         
-        .navigation {{
+        .navigation {
             background-color: var(--color-bg-subtle);
             border: 1px solid var(--color-border-default);
             border-radius: 6px;
             padding: 16px;
             margin-bottom: 24px;
-        }}
+        }
         
-        .nav-title {{
+        .nav-title {
             font-size: 14px;
             font-weight: 600;
             margin: 0 0 12px 0;
             color: var(--color-fg-default);
-        }}
+        }
         
-        .nav-tabs {{
+        .nav-tabs {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-        }}
+        }
         
-        .nav-tab {{
+        .nav-tab {
             padding: 6px 12px;
             background-color: var(--color-canvas-default);
             border: 1px solid var(--color-border-default);
@@ -185,66 +200,66 @@ class GitHubStyleGenerator:
             font-size: 12px;
             font-weight: 500;
             transition: all 0.15s ease;
-        }}
+        }
         
-        .nav-tab:hover {{
+        .nav-tab:hover {
             background-color: var(--color-bg-subtle);
             border-color: var(--color-accent-fg);
-        }}
+        }
         
-        .section {{
+        .section {
             background-color: var(--color-canvas-default);
             border: 1px solid var(--color-border-default);
             border-radius: 6px;
             margin-bottom: 24px;
             overflow: hidden;
-        }}
+        }
         
-        .section-header {{
+        .section-header {
             padding: 16px;
             background-color: var(--color-bg-subtle);
             border-bottom: 1px solid var(--color-border-default);
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }}
+        }
         
-        .section-title {{
+        .section-title {
             font-size: 16px;
             font-weight: 600;
             margin: 0;
             color: var(--color-fg-default);
-        }}
+        }
         
-        .section-meta {{
+        .section-meta {
             font-size: 12px;
             color: var(--color-fg-muted);
-        }}
+        }
         
-        .repo-list {{
+        .repo-list {
             list-style: none;
             margin: 0;
             padding: 0;
-        }}
+        }
         
-        .repo-item {{
+        .repo-item {
             padding: 16px;
             border-bottom: 1px solid var(--color-border-default);
             display: grid;
             grid-template-columns: 32px 1fr auto auto;
             align-items: flex-start;
             gap: 16px;
-        }}
+        }
         
-        .repo-item:last-child {{
+        .repo-item:last-child {
             border-bottom: none;
-        }}
+        }
         
-        .repo-item:hover {{
+        .repo-item:hover {
             background-color: var(--color-bg-subtle);
-        }}
+        }
         
-        .repo-rank {{
+        .repo-rank {
             flex-shrink: 0;
             width: 32px;
             height: 32px;
@@ -256,37 +271,37 @@ class GitHubStyleGenerator:
             justify-content: center;
             font-size: 12px;
             font-weight: 600;
-        }}
+        }
         
-        .repo-rank.gold {{ background-color: #ffd700; color: #000; }}
-        .repo-rank.silver {{ background-color: #c0c0c0; color: #000; }}
-        .repo-rank.bronze {{ background-color: #cd7f32; color: #fff; }}
+        .repo-rank.gold { background-color: #ffd700; color: #000; }
+        .repo-rank.silver { background-color: #c0c0c0; color: #000; }
+        .repo-rank.bronze { background-color: #cd7f32; color: #fff; }
         
-        .repo-content {{
+        .repo-content {
             flex: 1;
             min-width: 0;
-        }}
+        }
         
-        .repo-header {{
+        .repo-header {
             display: flex;
             align-items: center;
             gap: 8px;
             margin-bottom: 4px;
-        }}
+        }
         
-        .repo-name {{
+        .repo-name {
             font-size: 16px;
             font-weight: 600;
             color: var(--color-accent-fg);
             text-decoration: none;
             word-break: break-word;
-        }}
+        }
         
-        .repo-name:hover {{
+        .repo-name:hover {
             text-decoration: underline;
-        }}
+        }
         
-        .repo-visibility {{
+        .repo-visibility {
             padding: 2px 6px;
             background-color: var(--color-bg-subtle);
             border: 1px solid var(--color-border-default);
@@ -294,71 +309,71 @@ class GitHubStyleGenerator:
             font-size: 10px;
             font-weight: 500;
             color: var(--color-fg-muted);
-        }}
+        }
         
-        .repo-description {{
+        .repo-description {
             color: var(--color-fg-muted);
             font-size: 14px;
             margin: 4px 0 8px 0;
             line-height: 1.4;
-        }}
+        }
         
-        .repo-meta {{
+        .repo-meta {
             display: flex;
             align-items: center;
             gap: 16px;
             font-size: 12px;
             color: var(--color-fg-muted);
             flex-wrap: wrap;
-        }}
+        }
         
-        .repo-language {{
+        .repo-language {
             display: flex;
             align-items: center;
             gap: 4px;
-        }}
+        }
         
-        .language-color {{
+        .language-color {
             width: 12px;
             height: 12px;
             border-radius: 50%;
             border: 1px solid var(--color-border-default);
-        }}
+        }
         
-        .repo-stats {{
+        .repo-stats {
             display: flex;
             align-items: center;
             gap: 12px;
-        }}
+        }
         
-        .stat {{
+        .stat {
             display: flex;
             align-items: center;
             gap: 4px;
             color: var(--color-fg-muted);
-        }}
+        }
         
-        .stat.stars {{ color: var(--color-attention-fg); }}
-        .stat.forks {{ color: var(--color-accent-fg); }}
+        .stat.stars { color: var(--color-attention-fg); }
+        .stat.forks { color: var(--color-accent-fg); }
         
-        .stats-column {{
+        .stats-column {
             display: flex;
             align-items: center;
             justify-content: flex-end;
             min-width: 80px;
             font-size: 14px;
             font-weight: 600;
-        }}
+        }
         
-        .stats-column.stars {{
+        .stats-column.stars {
             color: var(--color-attention-fg);
-        }}
+        }
         
-        .stats-column.forks {{
+        .stats-column.forks {
             color: var(--color-accent-fg);
-        }}
+        }
         
-        .footer {{
+        .footer {
             padding: 40px 0;
             text-align: center;
             color: var(--color-fg-muted);
@@ -366,44 +381,44 @@ class GitHubStyleGenerator:
             border-top: 1px solid var(--color-border-default);
             background-color: var(--color-bg-subtle);
             margin-top: 40px;
-        }}
+        }
         
-        .footer a {{
+        .footer a {
             color: var(--color-accent-fg);
             text-decoration: none;
-        }}
+        }
         
-        .footer a:hover {{
+        .footer a:hover {
             text-decoration: underline;
-        }}
+        }
         
         /* 响应式设计 */
-        @media (max-width: 768px) {{
-            .container {{
+        @media (max-width: 768px) {
+            .container {
                 padding: 0 12px;
-            }}
+            }
             
-            .header-content {{
+            .header-content {
                 flex-direction: column;
                 align-items: flex-start;
-            }}
+            }
             
-            .stats-summary {{
+            .stats-summary {
                 flex-wrap: wrap;
-            }}
+            }
             
-            .nav-tabs {{
+            .nav-tabs {
                 justify-content: flex-start;
-            }}
+            }
             
-            .repo-meta {{
+            .repo-meta {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 8px;
-            }}
-        }}
+            }
+        }
         
-        .new-badge {{
+        .new-badge {
             background: linear-gradient(45deg, #00b894, #00cec9);
             color: white;
             padding: 2px 6px;
@@ -412,9 +427,9 @@ class GitHubStyleGenerator:
             font-weight: 600;
             text-transform: uppercase;
             margin-left: 8px;
-        }}
+        }
         
-        .hot-badge {{
+        .hot-badge {
             background: linear-gradient(45deg, #e84393, #fd79a8);
             color: white;
             padding: 2px 6px;
@@ -423,7 +438,7 @@ class GitHubStyleGenerator:
             font-weight: 600;
             text-transform: uppercase;
             margin-left: 8px;
-        }}
+        }
     </style>
 </head>
 <body>
@@ -450,43 +465,15 @@ class GitHubStyleGenerator:
             <div class="page-header">
                 <h1 class="page-title">⭐ Github排行榜中文版</h1>
                 <p class="page-description">
-                    发现GitHub上最受欢迎的开源项目，按语言分类展示最具影响力的代码仓库
+                    发现GitHub上最受欢迎的开源项目，展示最具影响力和快速成长的代码仓库
                 </p>
             </div>
             
-            <div class="navigation">
-                <h3 class="nav-title">📋 分类导航</h3>
-                <div class="nav-tabs">"""
+"""
         
-        # 生成导航标签
-        for category in data_dict.keys():
-            safe_category = category.replace('/', '_').replace(' ', '_')
-            html += f'                    <a href="#{safe_category}" class="nav-tab">{category}</a>\n'
-        
-        html += """                </div>
-            </div>"""
-        
-        # 生成各分类的排名列表 - 调整显示顺序
-        # 1. 首先显示当周热门
-        # 2. 然后是总体排名  
-        # 3. 最后是各语言分类
-        
-        # 准备显示顺序 - 本周成长最快在前
-        display_order = [
-            "📈 本周成长最快",
-            "🆕 当周热门新项目", 
-            "总体-Stars",
-            "总体-Forks"
-        ]
-        
-        # 添加其他语言分类（按字母顺序）
-        other_categories = [cat for cat in data_dict.keys() 
-                          if cat not in display_order]
-        other_categories.sort()
-        display_order.extend(other_categories)
-        
-        for category in display_order:
-            if not data_dict.get(category):
+        # 生成4个主要分类的排名列表
+        for category in main_categories:
+            if not filtered_data.get(category):
                 continue
                 
             safe_category = category.replace('/', '_').replace(' ', '_')
@@ -494,13 +481,13 @@ class GitHubStyleGenerator:
             <div class="section" id="{safe_category}">
                 <div class="section-header">
                     <h2 class="section-title">{category}</h2>
-                    <div class="section-meta">Top {min(len(data_dict[category]), 20)} 项目</div>
+                    <div class="section-meta">Top {min(len(filtered_data[category]), 20)} 项目</div>
                 </div>
                 <ol class="repo-list">"""
             
-            # 总榜显示20个，其他显示10个
-            display_count = 20 if category in ['总体-Stars', '总体-Forks'] else 10
-            for i, repo in enumerate(data_dict[category][:display_count], 1):
+            # 所有分类都显示20个
+            display_count = 20
+            for i, repo in enumerate(filtered_data[category][:display_count], 1):
                 repo_name = repo.get('完整名称', repo.get('项目名称', ''))
                 repo_link = repo.get('仓库链接', '')
                 description = repo.get('描述', '暂无描述')
@@ -641,11 +628,9 @@ class GitHubStyleGenerator:
 </html>"""
         
         # 替换模板中的变量
-        html = html.format(
-            update_time=update_time,
-            total_repos=total_repos,
-            total_categories=total_categories
-        )
+        html = html.replace('{update_time}', update_time)
+        html = html.replace('{total_repos}', str(total_repos))
+        html = html.replace('{total_categories}', str(total_categories))
         
         return html
     
